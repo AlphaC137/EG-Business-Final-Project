@@ -88,9 +88,13 @@ export function CheckoutPage() {
         // Create order
   await createOrderWithItems(user.id, orderItems, addressId);
 
-        // Clear cart and go to confirmation (we can pass ID via state or query later)
+        // Clear cart and go to confirmation, passing a simple summary
+        const summary = {
+          items: items.map((i) => ({ id: i.id, name: i.name, image: i.image, price: i.price, quantity: i.quantity, farm: i.farm })),
+          total,
+        };
         clearCart();
-        navigate('/order-confirmation');
+        navigate('/order-confirmation', { state: { summary } });
       } catch (err) {
         console.error('Checkout error', err);
         alert('Failed to place order. Please try again.');

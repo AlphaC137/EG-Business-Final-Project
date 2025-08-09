@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import { ensureProfileExists } from '../../lib/api/profiles';
 import { Chrome } from 'lucide-react';
 
 interface SignInFormProps {
@@ -18,12 +19,13 @@ export function SignInForm({ onClose }: SignInFormProps) {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+  if (error) throw error;
+  if (data?.user) await ensureProfileExists(data.user);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');

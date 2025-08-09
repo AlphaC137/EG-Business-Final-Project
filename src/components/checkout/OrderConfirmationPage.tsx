@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { CheckCircle, Package, Truck } from 'lucide-react';
 import { useCartStore } from '../../lib/store';
 
@@ -7,11 +7,14 @@ export function OrderConfirmationPage() {
   const { items, total, clearCart } = useCartStore();
   const orderNumber = Math.random().toString(36).substr(2, 9).toUpperCase();
   const navigate = useNavigate();
+  const location = useLocation();
+  type Summary = { items: Array<{ id: string; name: string; image: string; price: number; quantity: number; farm: string }>; total: number };
+  const summary = (location.state as { summary?: Summary } | null | undefined)?.summary;
 
   React.useEffect(() => {
-    // Clear the cart after successful order
-    clearCart();
-  }, [clearCart]);
+    // Clear the cart after successful order if it wasn't already
+    if (items.length > 0) clearCart();
+  }, [clearCart, items.length]);
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -36,7 +39,7 @@ export function OrderConfirmationPage() {
         </div>
 
         <div className="space-y-4">
-          {items.map((item) => (
+          {(summary?.items ?? items).map((item) => (
             <div
               key={item.id}
               className="flex items-center gap-4 py-4 border-t"
@@ -62,7 +65,7 @@ export function OrderConfirmationPage() {
         <div className="border-t mt-6 pt-6">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>Subtotal</span>
-            <span>R{total.toFixed(2)}</span>
+            <span>R{(summary?.total ?? total).toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>Shipping</span>

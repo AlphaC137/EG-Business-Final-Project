@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import { ensureProfileExists } from '../../lib/api/profiles';
 import { Chrome } from 'lucide-react';
 
 interface SignUpFormProps {
@@ -25,12 +26,13 @@ export function SignUpForm({ onClose }: SignUpFormProps) {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
 
-      if (error) throw error;
+  if (error) throw error;
+  if (data?.user) await ensureProfileExists(data.user);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
