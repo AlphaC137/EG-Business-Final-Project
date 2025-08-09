@@ -2,15 +2,29 @@
 
 This document inventories what’s implemented vs. missing, and outlines a concrete plan to take the project to production. It includes a proposed Supabase schema with RLS, routing/auth/payment integration plans, and prioritized next steps.
 
+## Status update — 2025-08-09
+
+- Done:
+  - React Router integrated; URL-based routes configured in `App.tsx`.
+  - Initial Supabase schema migration added: `supabase/migrations/20250809_initial_schema.sql` with RLS and order total triggers.
+  - README expanded with setup steps; `.env.example` added.
+  - Lint/build currently pass locally.
+- Pending (high level):
+  - Replace mock data with Supabase reads/writes (products, vendors, profiles).
+  - Auth flows polish (Google OAuth, email verification, password reset) and ensure profile row creation on sign-up.
+  - Checkout flow: create orders/order_items; Stripe Checkout + webhooks.
+  - Storage buckets usage for images; upload UI.
+  - Tests and CI; messaging/notifications; SEO/observability.
+
 ## Snapshot of current repo
 
 - Tooling: Vite + React 18 + TypeScript, TailwindCSS, ESLint, Zustand
 - Libraries present: @supabase/supabase-js, react-router-dom, headlessui, framer-motion, lucide-react
 - State: Zustand stores for auth and cart
 - Styling: Tailwind configured; custom theme
-- Backend: Supabase client only; migrations folder exists but migration file is empty
+- Backend: Supabase client configured; migrations folder contains initial schema (`20250809_initial_schema.sql`) with RLS and triggers
 - Auth: Supabase client wired; UI for AuthModal/SignIn/SignUp; session listener in `App.tsx`
-- Navigation: Internal manual state machine, not using react-router yet
+- Navigation: Using react-router with routes defined in `App.tsx`
 - Features implemented (UI-level):
   - Home (Hero, FeaturedProducts)
   - Marketplace (UI)
@@ -21,18 +35,17 @@ This document inventories what’s implemented vs. missing, and outlines a concr
   - Order Confirmation (UI)
 - Data: `src/data/products.ts`, `src/data/articles.ts` used for mock content
 - Testing/CI: None
-- Docs: README is empty/minimal
+- Docs: README expanded; `.env.example` present
 
 ## High-level gaps
 
 - Backend/Supabase
-  - No database schema defined (empty migration file)
-  - No RLS policies or function helpers
-  - No storage buckets/config for images (products, avatars)
+  - Schema migration exists; ensure it’s applied to your Supabase project
+  - Storage buckets/config for images (products, avatars) not yet wired in-app
   - No server-side functions for payments/webhooks (Stripe) or messaging
 - Frontend
-  - No react-router; manual navigation via component state
-  - Pages use mock data; no Supabase reads/writes
+  - Routing in place; consider moving pages into `src/pages/` and introducing nested routes
+  - Pages use mock data; no Supabase reads/writes yet
   - Checkout has no order creation/payment flow
   - Auth flows incomplete (no OAuth setup, email verification, password reset UI)
   - Vendor/User profile pages not connected to backend
@@ -72,7 +85,7 @@ This document inventories what’s implemented vs. missing, and outlines a concr
   - notifications
   - inventory_adjustments (optional)
 
-- Example migration (create a new migration e.g., `supabase/migrations/20250809_initial_schema.sql`):
+- Example migration (already added at `supabase/migrations/20250809_initial_schema.sql`):
 
 ```sql
 -- Profiles (1:1 auth.users)
@@ -281,10 +294,11 @@ VITE_SITE_URL=http://localhost:5173
 ```
 
 - Update README with setup instructions (Supabase project creation, running migrations, env setup, dev scripts)
+  - Note: README has been expanded with these steps; keep it updated as features land
 
 3) Routing and page structure
 
-- Introduce react-router and replace manual navigation in `App.tsx`
+- Introduce react-router and replace manual navigation in `App.tsx` — Done
   - Routes: `/`, `/marketplace`, `/knowledge-hub`, `/vendor/registration`, `/vendor/profile`, `/user/profile`, `/cart`, `/checkout`, `/order/:id`
   - Move pages to `src/pages/...` and convert existing components accordingly
 
@@ -382,9 +396,9 @@ export async function createOrder(profileId: string, items: Array<{product_id: s
 ## Acceptance criteria per milestone
 
 MVP 1: Routing + Auth + Schema
-- React Router replacing manual nav
-- Supabase schema and RLS applied
-- Sign up/in/out works; profile row created
+- React Router replacing manual nav — Done
+- Supabase schema and RLS applied (migration added; ensure applied in Supabase project) — Mostly Done
+- Sign up/in/out works; profile row created — Pending profile row creation logic
 
 MVP 2: Products + Cart + Checkout (mock Stripe)
 - Marketplace lists products from Supabase
@@ -407,9 +421,8 @@ MVP 5: Messaging + Notifications + QA
 
 ## Immediate next actions
 
-- Add `.env.example` and expand `README.md`
-- Replace empty migration with `20250809_initial_schema.sql` (above), then run migrations
-- Introduce React Router and move current pages under `src/pages` with routes
+- Run the migration in your Supabase project (if not yet applied) and create storage buckets
+- Move current pages under `src/pages` with routes (optional structural improvement)
 - Wire auth UI to Google/email sign-in and profile creation
 - Swap mock products for Supabase reads in Marketplace
 - Implement order creation API and integrate checkout button flow

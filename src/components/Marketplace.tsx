@@ -1,7 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { ProductCard } from './ProductCard';
-import { products } from '../data/products';
+import { products as mockProducts, type Product } from '../data/products';
+import { listProducts } from '../lib/api/products';
+import { LoadingSpinner } from './ui/LoadingSpinner';
 
 interface Filters {
   search: string;
@@ -26,6 +28,33 @@ const initialFilters: Filters = {
 export function Marketplace() {
   const [filters, setFilters] = useState<Filters>(initialFilters);
   const [showFilters, setShowFilters] = useState(false);
+  const [items, setItems] = useState<Product[]>(mockProducts);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const data = await listProducts();
+        if (isMounted && Array.isArray(data) && data.length > 0) {
+          setItems(data);
+        } else if (isMounted) {
+          setItems(mockProducts);
+        }
+      } catch (e: unknown) {
+        if (isMounted) {
+          const msg = e instanceof Error ? e.message : 'Failed to load products. Showing sample data.';
+          setError(msg);
+          setItems(mockProducts);
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    })();
+    return () => { isMounted = false; };
+  }, []);
 
   const handleFilterChange = (key: keyof Filters, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -36,7 +65,7 @@ export function Marketplace() {
   };
 
   const filteredProducts = useMemo(() => {
-    return products.filter(product => {
+    return items.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(filters.search.toLowerCase()) ||
                           product.farm.toLowerCase().includes(filters.search.toLowerCase());
       const matchesCategory = !filters.category || product.category === filters.category;
@@ -50,11 +79,11 @@ export function Marketplace() {
       return matchesSearch && matchesCategory && matchesMinPrice && 
              matchesMaxPrice && matchesLocation && matchesOrganic && matchesSeason;
     });
-  }, [filters]);
+  }, [filters, items]);
 
-  const uniqueCategories = [...new Set(products.map(p => p.category))];
-  const uniqueLocations = [...new Set(products.map(p => p.location))];
-  const uniqueSeasons = [...new Set(products.map(p => p.season))];
+  const uniqueCategories = [...new Set(items.map(p => p.category))];
+  const uniqueLocations = [...new Set(items.map(p => p.location))];
+  const uniqueSeasons = [...new Set(items.map(p => p.season))];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -187,6 +216,18 @@ export function Marketplace() {
               <option value="false">Conventional Only</option>
             </select>
           </div>
+        </div>
+      )}
+
+      {/* Loading/Error */}
+      {loading && (
+        <div className="flex justify-center items-center py-16">
+          <LoadingSpinner />
+        </div>
+      )}
+      {error && (
+        <div className="mb-6 p-4 rounded border border-amber-300 bg-amber-50 text-amber-800">
+          {error}
         </div>
       )}
 

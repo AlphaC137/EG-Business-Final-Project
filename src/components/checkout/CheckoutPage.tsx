@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { CreditCard, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useCartStore } from '../../lib/store';
+import { useAuthStore, useCartStore } from '../../lib/store';
+import { createAddress, createOrderWithItems } from '../../lib/api/orders';
 
 interface ShippingAddress {
   fullName: string;
@@ -21,7 +22,8 @@ interface PaymentDetails {
 }
 
 export function CheckoutPage() {
-  const { items, total } = useCartStore();
+  const { items, total, clearCart } = useCartStore();
+  const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     fullName: '',
@@ -57,8 +59,43 @@ export function CheckoutPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement order processing
-    navigate('/order-confirmation');
+    (async () => {
+      try {
+        if (!user) {
+          // Should be protected route already
+          navigate('/');
+          return;
+        }
+        // Create address
+        const addressId = await createAddress(user.id, {
+          fullName: shippingAddress.fullName,
+          phone: shippingAddress.phone,
+          street: shippingAddress.streetAddress,
+          apartment: shippingAddress.apartment,
+          city: shippingAddress.city,
+          state: shippingAddress.state,
+          zip: shippingAddress.zipCode,
+          country: 'US',
+        });
+
+        // Map items
+        const orderItems = items.map((it) => ({
+          productId: it.id,
+          quantity: it.quantity,
+          unitPrice: it.price,
+        }));
+
+        // Create order
+  await createOrderWithItems(user.id, orderItems, addressId);
+
+        // Clear cart and go to confirmation (we can pass ID via state or query later)
+        clearCart();
+        navigate('/order-confirmation');
+      } catch (err) {
+        console.error('Checkout error', err);
+        alert('Failed to place order. Please try again.');
+      }
+    })();
   };
 
   return (
