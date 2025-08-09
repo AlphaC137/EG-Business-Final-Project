@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Phone, Mail, Globe, Camera, Tractor, Leaf, Package, Star, MessageCircle } from 'lucide-react';
+import { MapPin, Phone, Mail, Globe, Tractor, Leaf, Star, MessageCircle } from 'lucide-react';
 
 // Mock data for demonstration
 const vendorData = {
@@ -68,10 +68,10 @@ export function VendorProfile() {
   const [activeTab, setActiveTab] = useState<'about' | 'products' | 'reviews'>('about');
   const [messageText, setMessageText] = useState('');
 
-  const handleContact = () => {
-    // TODO: Implement contact functionality
-    alert('Contact functionality coming soon!');
-  };
+  // const handleContact = () => {
+  //   // TODO: Implement contact functionality
+  //   alert('Contact functionality coming soon!');
+  // };
 
   const handleMessage = (e: React.FormEvent) => {
     e.preventDefault();

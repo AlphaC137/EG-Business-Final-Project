@@ -1,20 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuthStore } from '../../lib/store';
-import { 
-  User, 
-  Phone, 
-  Mail, 
-  Calendar, 
-  MapPin, 
-  Shield, 
-  Edit2, 
-  Eye, 
-  EyeOff,
-  Clock,
-  CreditCard,
-  MessageCircle,
-  CheckCircle
-} from 'lucide-react';
+import { Phone, Mail, Calendar, MapPin, Edit2, Eye, EyeOff, Clock, CreditCard, MessageCircle, CheckCircle } from 'lucide-react';
 import { ProfileEditModal } from './ProfileEditModal';
 import { PrivacySettingsModal } from './PrivacySettingsModal';
 
@@ -75,7 +61,7 @@ export function UserProfile() {
   const [userData, setUserData] = useState<UserProfileData>(mockUserData);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
-  const user = useAuthStore((state) => state.user);
+  useAuthStore((state) => state.user);
 
   const getAvailabilityColor = (status: string) => {
     switch (status) {
@@ -279,7 +265,7 @@ export function UserProfile() {
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
         userData={userData}
-        onSave={handleProfileUpdate}
+        onSave={(data) => handleProfileUpdate(data as Partial<UserProfileData>)}
       />
 
       {/* Privacy Settings Modal */}

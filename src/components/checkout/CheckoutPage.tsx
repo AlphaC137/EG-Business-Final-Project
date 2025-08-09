@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { CreditCard, MapPin, Truck } from 'lucide-react';
+import { CreditCard, MapPin } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../../lib/store';
 
 interface ShippingAddress {
@@ -21,6 +22,7 @@ interface PaymentDetails {
 
 export function CheckoutPage() {
   const { items, total } = useCartStore();
+  const navigate = useNavigate();
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     fullName: '',
     streetAddress: '',
@@ -56,10 +58,7 @@ export function CheckoutPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement order processing
-    const event = new CustomEvent('navigate', { 
-      detail: { path: '/order-confirmation' } 
-    });
-    window.dispatchEvent(event);
+    navigate('/order-confirmation');
   };
 
   return (

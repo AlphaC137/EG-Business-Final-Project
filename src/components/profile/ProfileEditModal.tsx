@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
 import { X, Upload } from 'lucide-react';
 
+type ProfileData = {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  profilePicture?: string;
+  accountType?: 'user' | 'vendor';
+  businessName?: string;
+  businessDescription?: string;
+  operatingHours?: { start?: string; end?: string };
+};
+
 interface ProfileEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  userData: any;
-  onSave: (data: any) => void;
+  userData: ProfileData;
+  onSave: (data: ProfileData) => void;
 }
 
 export function ProfileEditModal({
@@ -14,7 +26,7 @@ export function ProfileEditModal({
   userData,
   onSave,
 }: ProfileEditModalProps) {
-  const [formData, setFormData] = useState(userData);
+  const [formData, setFormData] = useState<ProfileData>(userData);
 
   if (!isOpen) return null;
 

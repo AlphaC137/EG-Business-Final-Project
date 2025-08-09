@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Camera, MapPin, Phone, Mail, Globe, Tractor, Leaf } from 'lucide-react';
+import { Camera, MapPin, Phone, Globe } from 'lucide-react';
 
 interface RegistrationFormData {
   farmName: string;

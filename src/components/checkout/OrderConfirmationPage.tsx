@@ -1,10 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Package, Truck } from 'lucide-react';
 import { useCartStore } from '../../lib/store';
 
 export function OrderConfirmationPage() {
   const { items, total, clearCart } = useCartStore();
   const orderNumber = Math.random().toString(36).substr(2, 9).toUpperCase();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     // Clear the cart after successful order
@@ -101,15 +103,7 @@ export function OrderConfirmationPage() {
         </div>
 
         <div className="mt-8 flex justify-center">
-          <button
-            onClick={() => {
-              const event = new CustomEvent('navigate', { 
-                detail: { path: '/marketplace' } 
-              });
-              window.dispatchEvent(event);
-            }}
-            className="btn-primary"
-          >
+          <button onClick={() => navigate('/marketplace')} className="btn-primary">
             Continue Shopping
           </button>
         </div>

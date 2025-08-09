@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { ProductCard } from './ProductCard';
-import { products, Product } from '../data/products';
+import { products } from '../data/products';
 
 interface Filters {
   search: string;
